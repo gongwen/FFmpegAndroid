@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FFmpegAndroid</string>
+
+    <string name="text_protocol">Protocol</string>
+    <string name="text_codec">Codec</string>
+    <string name="text_format">Format</string>
+    <string name="text_filter">Filter</string>
+    <string name="text_execute_ffmpeg_command">Execute ffmpeg command</string>
+    <string name="text_enter_ffmpeg_command_tip">Please enter ffmpeg command</string>
+
+</resources>

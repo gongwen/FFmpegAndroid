@@ -1,0 +1,57 @@
+apply from: '../constants.gradle'
+apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+
+android {
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
+        versionCode project.ext.versionCode
+        versionName project.ext.versionName
+
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_ARM_MODE=arm'
+                cppFlags ""
+            }
+        }
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    //implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+publish {
+    userOrg = 'gongwen92'      //bintray注册的用户名
+    groupId = 'com.gw'         //compile引用时的第1部分groupId
+    artifactId = 'ffmpegcommand'     //compile引用时的第2部分项目名
+    publishVersion = project.ext.versionName    //compile引用时的第3部分版本号
+    desc = 'This is the ffmpeg command library for android'
+    website = 'https://github.com/gongwen/FFmpegAndroid'
+}
