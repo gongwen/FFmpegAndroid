@@ -21,6 +21,7 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         ${CMAKE_SOURCE_DIR}/src/main/cpp/cmdutils.c
         ${CMAKE_SOURCE_DIR}/src/main/cpp/ffmpeg.c
+        ${CMAKE_SOURCE_DIR}/src/main/cpp/ffmpeg_hw.c
         ${CMAKE_SOURCE_DIR}/src/main/cpp/ffmpeg_filter.c
         ${CMAKE_SOURCE_DIR}/src/main/cpp/ffmpeg_opt.c
         ${CMAKE_SOURCE_DIR}/src/main/cpp/native_lib.c)
@@ -28,7 +29,6 @@ add_library( # Sets the name of the library.
 add_library(libavcodec
         SHARED
         IMPORTED)
-
 set_target_properties(libavcodec
         PROPERTIES IMPORTED_LOCATION
         ${LIB_SOURCE_DIR}/libavcodec.so)
@@ -60,6 +60,13 @@ add_library(libavutil
 set_target_properties(libavutil
         PROPERTIES IMPORTED_LOCATION
         ${LIB_SOURCE_DIR}/libavutil.so)
+
+add_library(libpostproc
+        SHARED
+        IMPORTED)
+set_target_properties(libpostproc
+        PROPERTIES IMPORTED_LOCATION
+        ${LIB_SOURCE_DIR}/libpostproc.so)
 
 add_library(libswresample
         SHARED
@@ -93,6 +100,7 @@ target_link_libraries( # Specifies the target library.
         libavfilter
         libavformat
         libavutil
+        libpostproc
         libswresample
         libswscale
         )

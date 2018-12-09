@@ -34,6 +34,7 @@
 #include "avformat.h"
 #include "avio.h"
 #include "avio_internal.h"
+#include "id3v2.h"
 #include "internal.h"
 #include "metadata.h"
 #include "pcm.h"
@@ -180,9 +181,9 @@ static int wav_parse_fmt_tag(AVFormatContext *s, int64_t size, AVStream **st)
 static int wav_parse_xma2_tag(AVFormatContext *s, int64_t size, AVStream **st)
 {
     AVIOContext *pb = s->pb;
-    int num_streams, i, channels = 0;
+    int version, num_streams, i, channels = 0;
 
-    if (size < 44)
+    if (size < 36)
         return AVERROR_INVALIDDATA;
 
     *st = avformat_new_stream(s, NULL);
@@ -193,13 +194,17 @@ static int wav_parse_xma2_tag(AVFormatContext *s, int64_t size, AVStream **st)
     (*st)->codecpar->codec_id   = AV_CODEC_ID_XMA2;
     (*st)->need_parsing         = AVSTREAM_PARSE_FULL_RAW;
 
-    avio_skip(pb, 1);
+    version = avio_r8(pb);
+    if (version != 3 && version != 4)
+        return AVERROR_INVALIDDATA;
     num_streams = avio_r8(pb);
-    if (size < 40 + num_streams * 4)
+    if (size != (32 + ((version==3)?0:8) + 4*num_streams))
         return AVERROR_INVALIDDATA;
     avio_skip(pb, 10);
     (*st)->codecpar->sample_rate = avio_rb32(pb);
-    avio_skip(pb, 12);
+    if (version == 4)
+        avio_skip(pb, 8);
+    avio_skip(pb, 4);
     (*st)->duration = avio_rb32(pb);
     avio_skip(pb, 8);
 
@@ -213,9 +218,11 @@ static int wav_parse_xma2_tag(AVFormatContext *s, int64_t size, AVStream **st)
         return AVERROR_INVALIDDATA;
 
     avpriv_set_pts_info(*st, 64, 1, (*st)->codecpar->sample_rate);
-    if (ff_alloc_extradata((*st)->codecpar, 34))
+
+    avio_seek(pb, -size, SEEK_CUR);
+    av_freep(&(*st)->codecpar->extradata);
+    if (ff_get_extradata(s, (*st)->codecpar, pb, size) < 0)
         return AVERROR(ENOMEM);
-    memset((*st)->codecpar->extradata, 0, 34);
 
     return 0;
 }
@@ -492,6 +499,18 @@ static int wav_read_header(AVFormatContext *s)
             switch (avio_rl32(pb)) {
             case MKTAG('I', 'N', 'F', 'O'):
                 ff_read_riff_info(s, size - 4);
+            }
+            break;
+        case MKTAG('I', 'D', '3', ' '):
+        case MKTAG('i', 'd', '3', ' '): {
+            ID3v2ExtraMeta *id3v2_extra_meta = NULL;
+            ff_id3v2_read_dict(pb, &s->internal->id3v2_meta, ID3v2_DEFAULT_MAGIC, &id3v2_extra_meta);
+            if (id3v2_extra_meta) {
+                ff_id3v2_parse_apic(s, &id3v2_extra_meta);
+                ff_id3v2_parse_chapters(s, &id3v2_extra_meta);
+                ff_id3v2_parse_priv(s, &id3v2_extra_meta);
+            }
+            ff_id3v2_free_extra_meta(&id3v2_extra_meta);
             }
             break;
         }
@@ -816,6 +835,7 @@ static int w64_read_header(AVFormatContext *s)
             samples = avio_rl64(pb);
             if (samples > 0)
                 st->duration = samples;
+            avio_skip(pb, FFALIGN(size, INT64_C(8)) - 32);
         } else if (!memcmp(guid, ff_w64_guid_data, 16)) {
             wav->data_end = avio_tell(pb) + size - 24;
 

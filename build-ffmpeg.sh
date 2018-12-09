@@ -2,10 +2,11 @@
 
 #以下编译环境测试通过
 #Mac-->10.14.1
-#FFmpeg-->4.1
+#FFmpeg-->master(4.1)
 #Ndk-->r14b
-
-#cd ffmpeg
+# 参考自：使用Android Studio开发FFmpeg的正确姿势-https://www.jianshu.com/p/0a7f3175c1b9
+# https://github.com/FFmpeg/FFmpeg/blob/master/configure
+cd ffmpeg
 
 NDK=/Users/gongwen/FFmpeg/android-ndk-r14b
 export PATH=$PATH:$NDK
@@ -35,30 +36,36 @@ function build_one
 {
 ./configure \
 --prefix=$PREFIX \
---enable-encoders \
---enable-decoders \
---enable-avdevice \
---enable-avfilter \
---enable-shared \
---disable-static \
---enable-small \
---disable-ffmpeg \
---disable-ffplay \
---disable-ffprobe \
---disable-ffserver \
---disable-doc \
---disable-symver \
---disable-asm \
---disable-programs \
---cross-prefix=$TOOLCHAIN/bin/arm-linux-androideabi- \
 --target-os=android \
 --arch=${ARCH} \
 --cpu=${CPU} \
---enable-cross-compile \
 --sysroot=$SYSROOT \
+--cross-prefix=$TOOLCHAIN/bin/arm-linux-androideabi- \
 --extra-cflags="-march=$CPU -mfpu=neon -mfloat-abi=softfp -mvectorize-with-neon-quad" \
 --extra-ldflags="-Wl,--fix-cortex-a8" \
 --extra-ldexeflags=-pie \
+--enable-cross-compile \
+--enable-gpl \
+--enable-nonfree \
+--disable-doc \
+--disable-ffmpeg \
+--disable-ffplay \
+--disable-ffprobe \
+--disable-network \
+--disable-symver \
+--disable-asm \
+--disable-programs \
+--disable-static \
+--enable-shared \
+--enable-small \
+--enable-protocols \
+--enable-avdevice \
+--enable-encoders \
+--enable-decoders \
+--enable-avfilter \
+
+$ADDITIONAL_CONFIGURE_FLAG
+
 
 make clean
 make -j8
