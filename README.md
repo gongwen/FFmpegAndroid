@@ -13,8 +13,9 @@
 [Mac下为Android编译FFMPEG和x264 （一）](http://zheteng.me/android/2016/05/25/build-ffmpeg-for-android-with-x264/)
 [https://trac.ffmpeg.org/wiki/Encode/H.264](https://trac.ffmpeg.org/wiki/Encode/H.264)
 [https://github.com/guardianproject/android-ffmpeg](https://github.com/guardianproject/android-ffmpeg)
-[为Android编译FFMpeg](https://www.jianshu.com/p/9f1e5d711f97)
-
+[为Android编译FFmpeg](https://www.jianshu.com/p/9f1e5d711f97)
+[ffmpeg-x264](https://sites.google.com/site/linuxencoding/x264-ffmpeg-mapping)
+[编译x264](https://www.jianshu.com/p/f3b2813dfa7a)
 1.将ffmpeg源码拷贝进项目
 2.教程：https://blog.csdn.net/yhaolpz/article/details/77146156
 3.ffmpeg.h加入：int main(int argc, char **argv);

@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import com.gw.ffmpegcommand.FFmpegExecuter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "MainActivity";
     private static final int permissionRequestCode = 0x10;
 
     private EditText editView;
@@ -82,7 +84,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(MainActivity.this, "The ffmpeg command must be not null.", Toast.LENGTH_SHORT).show();
         } else {
             new Thread(() -> {
+                long cur = System.currentTimeMillis();
                 final int result = FFmpegExecuter.getInstance().run(command.toString().split(" "));
+                Log.e(TAG, String.format("Costs %d ms for %s.", System.currentTimeMillis() - cur, command.toString()));
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, result == 0 ? "Success" : "Fail", Toast.LENGTH_SHORT).show());
             }).start();
         }

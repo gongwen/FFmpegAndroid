@@ -1,5 +1,12 @@
 #include <jni.h>
 #include "ffmpeg.h"
+#include "libavcodec/jni.h"
+
+// load JNI
+jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+    av_jni_set_java_vm(vm, reserved);
+    return JNI_VERSION_1_6;
+}
 
 /**
  * 执行FFmpeg命令
