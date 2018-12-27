@@ -65,7 +65,10 @@ function build_one
 --enable-encoders \
 --enable-decoders \
 --enable-avfilter \
-
+--enable-jni \
+--enable-mediacodec \
+--enable-decoder=h264_mediacodec \
+--enable-hwaccel=h264_mediacodec \
 
 $ADDITIONAL_CONFIGURE_FLAG
 
